@@ -7,10 +7,14 @@
 //
 
 #import "DogsViewController.h"
+#import "AddDogViewController.h"
+#import "Dog.h"
+
 
 @interface DogsViewController () <UITableViewDelegate, UITableViewDataSource>
 
 @property (weak, nonatomic) IBOutlet UITableView *dogsTableView;
+@property NSArray *dogs;
 
 @end
 
@@ -19,21 +23,66 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.title = @"My Dogs";
+    self.title = @"Dogs";
+}
+
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [self loadDogs];
+    [self.dogsTableView reloadData];
+}
+
+
+-(void)loadDogs
+{
+    self.dogs = [self.owner.dog allObjects];
 }
 
 #pragma mark - UITableView Delegate Methods
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 1;
+    return self.dogs.count;
 }
+
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"dogCell"];
-
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: @"dogCell"];
+    cell.textLabel.text = [self.dogs[indexPath.row] name];
+    cell.detailTextLabel.text = [NSString stringWithFormat:@"%@ %@",[self.dogs[indexPath.row] breed], [self.dogs[indexPath.row]color]];
     return cell;
 }
+
+-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([segue.identifier isEqualToString: @"AddDogSegue"])
+    {
+        AddDogViewController *addDogVC = segue.destinationViewController;
+        addDogVC.owner = self.owner;
+    }
+    else if ([segue.identifier isEqualToString:@"dogProfile"])
+    {
+        AddDogViewController *dogProfile = segue.destinationViewController;
+        dogProfile.dog = self.dogs[[[self.dogsTableView indexPathForSelectedRow]row]];
+    }
+}
+
+-(BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return YES;
+}
+
+-(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if(editingStyle == UITableViewCellEditingStyleDelete)
+    {
+        [self.owner removeDogObject:self.dogs[indexPath.row]];
+        [self.owner.managedObjectContext save:nil];
+    }
+    [self.dogsTableView reloadData];
+}
+
 
 @end

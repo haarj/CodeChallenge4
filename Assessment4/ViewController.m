@@ -7,13 +7,18 @@
 //
 
 #import "ViewController.h"
+#import "AppDelegate.h"
+#import "Owner.h"
+#import "DownloadOwners.h"
+#import "DogsViewController.h"
 
 @interface ViewController () <UITableViewDelegate, UITableViewDataSource, UIAlertViewDelegate>
 
-@property (weak, nonatomic) IBOutlet UITableView *myTableView;
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
 
 @property UIAlertView *addAlert;
 @property UIAlertView *colorAlert;
+@property NSArray *owners;
 
 @end
 
@@ -23,68 +28,93 @@
 {
     [super viewDidLoad];
     self.title = @"Dog Owners";
+
+    self.owners = [NSArray new];
+
+    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    self.moc = [appDelegate managedObjectContext];
+
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+
+    if (![userDefaults objectForKey:@"owners"])
+    {
+        [DownloadOwners downloadOwnersWithCompletion:^(NSArray *ownersArray)
+        {
+            NSMutableArray *tempArray = [NSMutableArray new];
+            for (NSString *name in ownersArray)
+            {
+                Owner *owner = [NSEntityDescription insertNewObjectForEntityForName:NSStringFromClass([Owner class]) inManagedObjectContext:self.moc];
+                owner.name = name;
+                [tempArray addObject:owner];
+            }
+            self.owners = tempArray.copy;
+            [self.moc save:nil];
+            [userDefaults setObject:@YES forKey:@"owners"];
+            [userDefaults synchronize];
+            [self.tableView reloadData];
+        }];
+    }else
+    {
+        [self loadOwners];
+    }
 }
+
+
+-(void)loadOwners
+{
+    NSFetchRequest *request = [[NSFetchRequest alloc]initWithEntityName:NSStringFromClass([Owner class])];
+    self.owners = [self.moc executeFetchRequest:request error:nil];
+    [self.tableView reloadData];
+}
+
+
+-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    DogsViewController *dogVC = segue.destinationViewController;
+    dogVC.owner = self.owners[[[self.tableView indexPathForSelectedRow]row]];
+
+}
+
 
 #pragma mark - UITableView Delegate Methods
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    //TODO: UPDATE THIS ACCORDINGLY
-    return 1;
+    //COMPLETED
+    return self.owners.count;
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"myCell"];
-    //TODO: UPDATE THIS ACCORDINGLY
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: @"myCell"];
+    Owner *owner = [self.owners objectAtIndex:indexPath.row];
+    cell.textLabel.text = owner.name;
     return cell;
 }
 
 #pragma mark - UIAlertView Methods
 
-//METHOD FOR PRESENTING ALERT VIEW WITH TEXT FIELD FOR USER TO ENTER NEW PERSON
-- (IBAction)onAddButtonTapped:(UIBarButtonItem *)sender
-{
-    self.addAlert = [[UIAlertView alloc] initWithTitle:@"Add a Person"
-                                                    message:nil
-                                                   delegate:self
-                                          cancelButtonTitle:@"Cancel"
-                                          otherButtonTitles:@"Add", nil];
-    self.addAlert.alertViewStyle = UIAlertViewStylePlainTextInput;
-    UITextField *alertTextField = [self.addAlert textFieldAtIndex:0];
-    alertTextField.keyboardType = UIKeyboardTypeDefault;
-
-    self.addAlert.tag = 0;
-    [self.addAlert show];
-}
-
 -(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    if (buttonIndex != alertView.cancelButtonIndex && alertView.tag == 0)
+    //TODO: SAVE USER'S DEFAULT COLOR PREFERENCE USING THE CONDITIONAL BELOW
+
+    if (buttonIndex == 0)
     {
-        //TODO: ADD YOUR CODE HERE FOR WHEN USER ADDS NEW PERSON
+        self.navigationController.navigationBar.tintColor = [UIColor purpleColor];
+    }
+    else if (buttonIndex == 1)
+    {
+        self.navigationController.navigationBar.tintColor = [UIColor blueColor];
+    }
+    else if (buttonIndex == 2)
+    {
+        self.navigationController.navigationBar.tintColor = [UIColor orangeColor];
+    }
+    else if (buttonIndex == 3)
+    {
+        self.navigationController.navigationBar.tintColor = [UIColor greenColor];
     }
 
-    //TODO: SAVE USER'S DEFAULT COLOR PREFERENCE USING THE CONDITIONAL BELOW
-    else if (alertView.tag == 1)
-    {
-        if (buttonIndex == 0)
-        {
-            self.navigationController.navigationBar.tintColor = [UIColor purpleColor];
-        }
-        else if (buttonIndex == 1)
-        {
-            self.navigationController.navigationBar.tintColor = [UIColor blueColor];
-        }
-        else if (buttonIndex == 2)
-        {
-            self.navigationController.navigationBar.tintColor = [UIColor orangeColor];
-        }
-        else if (buttonIndex == 3)
-        {
-            self.navigationController.navigationBar.tintColor = [UIColor greenColor];
-        }
-    }
 }
 
 //METHOD FOR PRESENTING USER'S COLOR PREFERENCE
