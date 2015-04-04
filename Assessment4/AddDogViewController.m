@@ -46,8 +46,6 @@
         self.breedTextField.text = self.dog.breed;
         self.colorTextField.text = self.dog.color;
     }
-
-
 }
 
 
@@ -62,35 +60,6 @@
     [textField resignFirstResponder];
     return YES;
 }
-
-
-//-(void)textFieldDidEndEditing:(UITextField *)textField
-//{
-//    if(![textField isEqual:@""])
-//    {
-//        if (textField == self.nameTextField) {
-//            self.dog = [NSEntityDescription insertNewObjectForEntityForName:NSStringFromClass([Dog class]) inManagedObjectContext:self.addDogMoc];
-//            self.dog.name = textField.text;
-//            [self.breedTextField becomeFirstResponder];
-//        }else if (textField == self.breedTextField)
-//        {
-//            self.dog.breed = textField.text;
-//            [self.colorTextField becomeFirstResponder];
-//        }else if (textField == self.colorTextField)
-//        {
-//            self.dog.color = textField.text;
-//        }
-//
-//        [self.owner addDogObject:self.dog];
-//        [self.owner.managedObjectContext save:nil];
-//    }
-//    else
-//    {
-//        self.nameTextField.text = self.dog.name;
-//        self.breedTextField.text = self.dog.breed;
-//        self.colorTextField.text = self.dog.color;
-//    }
-//}
 
 
 - (IBAction)onPressedUpdateDog:(UIButton *)sender
@@ -114,30 +83,6 @@
 
     [self dismissViewControllerAnimated:YES completion:nil];
     [self.navigationController popViewControllerAnimated:YES];
-    
-//    self.nameTextField.text = self.dog.name;
-//    self.breedTextField.text = self.dog.breed;
-//    self.colorTextField.text = self.dog.color;
-
-
-//
-//        if (![self.nameTextField isEqual:@""]) {
-//            self.dog = [NSEntityDescription insertNewObjectForEntityForName:NSStringFromClass([Dog class]) inManagedObjectContext:self.owner.managedObjectContext];
-//            self.dog.name = self.nameTextField.text;
-//            [self.breedTextField becomeFirstResponder];
-//        }else if (![self.breedTextField isEqual:@""])
-//        {
-//            self.dog.breed = self.breedTextField.text;
-//            [self.colorTextField becomeFirstResponder];
-//        }else if (![self.colorTextField isEqual:@""])
-//        {
-//            self.dog.color = self.colorTextField.text;
-//        }
-//
-//            [self.owner addDogObject:self.dog];
-//            [self.owner.managedObjectContext save:nil];
-
-
     
 }
 
