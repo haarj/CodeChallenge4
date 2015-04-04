@@ -14,6 +14,7 @@
 
 @property Owner *owner;
 @property Dog *dog;
+@property NSManagedObjectContext *addDogMoc;
 
 
 

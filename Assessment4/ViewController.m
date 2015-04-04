@@ -64,7 +64,12 @@
 {
     NSFetchRequest *request = [[NSFetchRequest alloc]initWithEntityName:NSStringFromClass([Owner class])];
     self.owners = [self.moc executeFetchRequest:request error:nil];
+    NSData *theData = [[NSUserDefaults standardUserDefaults] objectForKey:@"myColor"];
+    UIColor *theColor = (UIColor *)[NSKeyedUnarchiver unarchiveObjectWithData:theData];
+    self.navigationController.navigationBar.tintColor = theColor;
     [self.tableView reloadData];
+    [self.navigationController reloadInputViews];
+
 }
 
 
@@ -72,6 +77,7 @@
 {
     DogsViewController *dogVC = segue.destinationViewController;
     dogVC.owner = self.owners[[[self.tableView indexPathForSelectedRow]row]];
+    dogVC.dogMoc = self.moc;
 
 }
 
@@ -101,18 +107,30 @@
     if (buttonIndex == 0)
     {
         self.navigationController.navigationBar.tintColor = [UIColor purpleColor];
+        NSData *theData = [NSKeyedArchiver archivedDataWithRootObject:[UIColor purpleColor]];
+        [[NSUserDefaults standardUserDefaults] setObject:theData forKey:@"myColor"];
+        [self.moc save:nil];
     }
     else if (buttonIndex == 1)
     {
         self.navigationController.navigationBar.tintColor = [UIColor blueColor];
+        NSData *theData = [NSKeyedArchiver archivedDataWithRootObject:[UIColor blueColor]];
+        [[NSUserDefaults standardUserDefaults] setObject:theData forKey:@"myColor"];
+        [self.moc save:nil];
     }
     else if (buttonIndex == 2)
     {
         self.navigationController.navigationBar.tintColor = [UIColor orangeColor];
+        NSData *theData = [NSKeyedArchiver archivedDataWithRootObject:[UIColor orangeColor]];
+        [[NSUserDefaults standardUserDefaults] setObject:theData forKey:@"myColor"];
+        [self.moc save:nil];
     }
     else if (buttonIndex == 3)
     {
         self.navigationController.navigationBar.tintColor = [UIColor greenColor];
+        NSData *theData = [NSKeyedArchiver archivedDataWithRootObject:[UIColor greenColor]];
+        [[NSUserDefaults standardUserDefaults] setObject:theData forKey:@"myColor"];
+        [self.moc save:nil];
     }
 
 }

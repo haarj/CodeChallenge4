@@ -12,5 +12,6 @@
 @interface DogsViewController : UIViewController
 
 @property (nonatomic) Owner *owner;
+@property NSManagedObjectContext *dogMoc;
 
 @end

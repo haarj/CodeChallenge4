@@ -14,7 +14,7 @@
 @interface DogsViewController () <UITableViewDelegate, UITableViewDataSource>
 
 @property (weak, nonatomic) IBOutlet UITableView *dogsTableView;
-@property NSArray *dogs;
+@property NSMutableArray *dogs;
 
 @end
 
@@ -36,7 +36,7 @@
 
 -(void)loadDogs
 {
-    self.dogs = [self.owner.dog allObjects];
+    self.dogs = [[self.owner.dog allObjects]mutableCopy];
 }
 
 #pragma mark - UITableView Delegate Methods
@@ -61,27 +61,27 @@
     {
         AddDogViewController *addDogVC = segue.destinationViewController;
         addDogVC.owner = self.owner;
+        addDogVC.addDogMoc = self.dogMoc;
     }
     else if ([segue.identifier isEqualToString:@"dogProfile"])
     {
         AddDogViewController *dogProfile = segue.destinationViewController;
         dogProfile.dog = self.dogs[[[self.dogsTableView indexPathForSelectedRow]row]];
+        dogProfile.addDogMoc = self.dogMoc;
     }
 }
 
--(BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return YES;
-}
 
 -(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if(editingStyle == UITableViewCellEditingStyleDelete)
     {
-        [self.owner removeDogObject:self.dogs[indexPath.row]];
-        [self.owner.managedObjectContext save:nil];
+        NSManagedObject *deletedObject = self.dogs[indexPath.row];
+        [self.dogMoc deleteObject:deletedObject];
+        [self.dogs removeObjectAtIndex:indexPath.row];
+        [self.dogsTableView reloadData];
+        [self.dogMoc save:nil];
     }
-    [self.dogsTableView reloadData];
 }
 
 
